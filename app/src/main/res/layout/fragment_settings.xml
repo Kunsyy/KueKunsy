@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background">
@@ -8,124 +9,152 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <TextView
-            android:text="⚙️ SETTINGS"
-            android:textColor="@color/on_surface"
-            android:textSize="20sp"
+            android:text="SETTINGS"
+            android:textColor="@color/primary"
+            android:textSize="22sp"
             android:textStyle="bold"
+            android:letterSpacing="0.05"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:text="Konfigurasi &amp; Status"
+            android:textColor="@color/on_surface_dim"
+            android:textSize="13sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp" />
 
-        <TextView
-            android:text="Telegram Bot"
-            android:textColor="@color/warning"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp" />
-
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="BOT_TOKEN (dari @BotFather)"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxStrokeColor="@color/primary"
-            app:hintTextColor="@color/on_surface"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="14dp"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="12dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etBotToken"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/on_surface"
-                android:textColorHint="#888888"
-                android:background="@null"
-                android:inputType="textNoSuggestions" />
+                android:orientation="vertical"
+                android:padding="18dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <TextView
+                    android:text="ROOT STATUS"
+                    android:textColor="@color/on_surface_dim"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp" />
 
-        <com.google.android.material.textfield.TextInputLayout
+                <TextView
+                    android:id="@+id/tvRootStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:text="Mengecek..." />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="CHAT_ID (dari @userinfobot)"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxStrokeColor="@color/primary"
-            app:hintTextColor="@color/on_surface"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="14dp"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="12dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etChatId"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/on_surface"
-                android:textColorHint="#888888"
-                android:background="@null"
-                android:inputType="number" />
+                android:orientation="vertical"
+                android:padding="18dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <TextView
+                    android:text="TELEGRAM BOT"
+                    android:textColor="@color/on_surface_dim"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp" />
 
-        <LinearLayout
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTest"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="TEST KONEKSI"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    app:backgroundTint="@color/surface2"
+                    app:strokeColor="@color/primary"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="10dp" />
+
+                <TextView
+                    android:id="@+id/tvTestResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:layout_marginTop="10dp"
+                    android:text="" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="12dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSave"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="SIMPAN"
-                android:layout_marginEnd="8dp"
-                app:backgroundTint="@color/primary"
-                xmlns:app="http://schemas.android.com/apk/res-auto" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnTest"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="TEST TG"
-                app:backgroundTint="@color/success"
-                xmlns:app="http://schemas.android.com/apk/res-auto" />
+                <TextView
+                    android:text="TENTANG APP"
+                    android:textColor="@color/on_surface_dim"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp" />
 
-        </LinearLayout>
+                <TextView
+                    android:text="RbxTool v1.0"
+                    android:textColor="@color/on_surface"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/tvTestResult"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="13sp"
-            android:layout_marginTop="12dp"
-            android:text="" />
+                <TextView
+                    android:text="Cookie Grabber &amp; Injector"
+                    android:textColor="@color/on_surface_dim"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#333333"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="24dp" />
-
-        <TextView
-            android:text="Root Status"
-            android:textColor="@color/warning"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:id="@+id/tvRootStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:text="Mengecek..." />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 

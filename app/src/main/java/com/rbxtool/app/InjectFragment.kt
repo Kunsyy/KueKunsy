@@ -34,29 +34,22 @@ class InjectFragment : Fragment() {
             packages = withContext(Dispatchers.IO) { RootUtils.getRobloxPackages() }
             val labels = packages.map { it.removePrefix("com.roblox.") }
                 .ifEmpty { listOf("(tidak ada Roblox terinstall)") }
-            b.spinnerPackage.adapter = ArrayAdapter(
-                requireContext(), android.R.layout.simple_spinner_dropdown_item, labels
-            )
+            val adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, labels)
+            adapter.setDropDownViewResource(R.layout.item_spinner)
+            b.spinnerPackage.adapter = adapter
         }
     }
 
     private fun doInject() {
         val cookie = b.etCookie.text?.toString()?.trim() ?: ""
-        if (cookie.isEmpty()) {
-            showResult(false, "Cookie kosong!")
-            return
-        }
+        if (cookie.isEmpty()) { showResult(false, "Cookie kosong!"); return }
         if (!cookie.startsWith("_|WARNING")) {
-            showResult(false, "Format cookie salah. Harus diawali _|WARNING:-DO-NOT-SHARE...")
+            showResult(false, "Format salah. Harus diawali _|WARNING:-DO-NOT-SHARE...")
             return
         }
-        if (packages.isEmpty()) {
-            showResult(false, "Tidak ada Roblox instance ditemukan.")
-            return
-        }
+        if (packages.isEmpty()) { showResult(false, "Tidak ada Roblox ditemukan."); return }
 
-        val selectedPkg = packages.getOrNull(b.spinnerPackage.selectedItemPosition)
-            ?: return
+        val selectedPkg = packages.getOrNull(b.spinnerPackage.selectedItemPosition) ?: return
 
         b.btnInject.isEnabled = false
         b.progress.visibility = View.VISIBLE
@@ -66,18 +59,15 @@ class InjectFragment : Fragment() {
             val ok = withContext(Dispatchers.IO) {
                 CookieManager(requireContext()).injectCookie(cookie, selectedPkg)
             }
-
             if (ok) {
-                // Verify by calling Roblox API
                 val user = withContext(Dispatchers.IO) { RobloxApi.getUser(cookie) }
                 if (user != null)
                     showResult(true, "✅ Berhasil!\n\n👤 @${user.name}\n💰 ${user.robux} Robux\n\nRoblox sudah dibuka otomatis.")
                 else
-                    showResult(true, "✅ Cookie diinject!\nRoblox sudah dibuka. (API check gagal)")
+                    showResult(true, "✅ Cookie diinject!\nRoblox sudah dibuka.")
             } else {
                 showResult(false, "❌ Inject gagal.\n\nPastikan:\n• Roblox pernah login minimal sekali\n• Root aktif\n• Pilih package yang benar")
             }
-
             b.btnInject.isEnabled = true
             b.progress.visibility = View.GONE
         }
