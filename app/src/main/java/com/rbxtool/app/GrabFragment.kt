@@ -93,7 +93,7 @@ class GrabFragment : Fragment() {
             text = header
             setTextColor(Color.parseColor("#F0F0F0"))
             textSize = 14f
-            lineSpacingMultiplier = 1.5f
+            setLineSpacing(0f, 1.5f)
         })
 
         inner.addView(TextView(ctx).apply {
