@@ -28,28 +28,48 @@ class CookieManager(private val context: Context) {
         username: String = "",
         displayName: String = ""
     ): Boolean {
-        val dbPath = "/data/data/$pkg/app_webview/Default/Cookies"
-        val prefsPath = "/data/data/$pkg/shared_prefs/prefs.xml"
+        val cookieDir = "/data/data/$pkg/app_webview/Default"
+        val dbPath = "$cookieDir/Cookies"
         val tmp = File(context.cacheDir, "rbx_inject.db")
 
-        RootUtils.exec("am force-stop $pkg")
-        Thread.sleep(900)
-
-        // Inject WebView cookie DB
-        RootUtils.exec("cp '$dbPath' '${tmp.absolutePath}' && chmod 666 '${tmp.absolutePath}'")
-        if (!tmp.exists()) return false
-
         return try {
-            val db = SQLiteDatabase.openDatabase(tmp.absolutePath, null, SQLiteDatabase.OPEN_READWRITE)
+            // Stop app
+            RootUtils.exec("am force-stop $pkg")
+            Thread.sleep(500)
+
+            // Wipe all app data so no stale session/account switcher data remains
+            RootUtils.exec("pm clear $pkg")
+            Thread.sleep(1000)
+
+            // Build fresh Cookies DB locally
+            tmp.delete()
+            val db = SQLiteDatabase.openOrCreateDatabase(tmp.absolutePath, null)
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS cookies (
+                    creation_utc INTEGER NOT NULL,
+                    host_key TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    value TEXT NOT NULL,
+                    path TEXT NOT NULL,
+                    expires_utc INTEGER NOT NULL,
+                    is_secure INTEGER NOT NULL,
+                    is_httponly INTEGER NOT NULL,
+                    last_access_utc INTEGER NOT NULL,
+                    has_expires INTEGER NOT NULL,
+                    is_persistent INTEGER NOT NULL,
+                    priority INTEGER NOT NULL,
+                    encrypted_value BLOB DEFAULT '',
+                    samesite INTEGER NOT NULL DEFAULT -1,
+                    source_scheme INTEGER NOT NULL DEFAULT 0,
+                    source_port INTEGER NOT NULL DEFAULT -1,
+                    last_update_utc INTEGER NOT NULL DEFAULT 0,
+                    top_frame_site_key TEXT NOT NULL DEFAULT '',
+                    source_type INTEGER NOT NULL DEFAULT 0,
+                    has_cross_site_ancestor INTEGER NOT NULL DEFAULT 0
+                )
+            """.trimIndent())
+
             val now = (System.currentTimeMillis() / 1000L + 11644473600L) * 1_000_000L
-
-            val schemaCur = db.rawQuery("PRAGMA table_info(cookies)", null)
-            val cols = mutableSetOf<String>()
-            while (schemaCur.moveToNext()) cols.add(schemaCur.getString(1))
-            schemaCur.close()
-
-            db.delete("cookies", "name=?", arrayOf(".ROBLOSECURITY"))
-
             val cv = ContentValues().apply {
                 put("creation_utc", now)
                 put("host_key", ".roblox.com")
@@ -65,34 +85,29 @@ class CookieManager(private val context: Context) {
                 put("is_persistent", 1)
                 put("priority", 1)
                 put("samesite", -1)
-                if ("top_frame_site_key" in cols) put("top_frame_site_key", "")
-                if ("source_scheme" in cols) put("source_scheme", 2)
-                if ("source_port" in cols) put("source_port", 443)
-                if ("last_update_utc" in cols) put("last_update_utc", now)
-                if ("source_type" in cols) put("source_type", 0)
-                if ("has_cross_site_ancestor" in cols) put("has_cross_site_ancestor", 0)
+                put("source_scheme", 2)
+                put("source_port", 443)
+                put("last_update_utc", now)
+                put("top_frame_site_key", "")
+                put("source_type", 0)
+                put("has_cross_site_ancestor", 0)
             }
             db.insert("cookies", null, cv)
             db.close()
 
-            val owner = RootUtils.exec("stat -c '%U:%G' '$dbPath'").trim()
+            // Get app UID for correct ownership
+            val appUid = RootUtils.exec("stat -c '%u' '/data/data/$pkg'").trim()
+
+            // Push Cookies DB into app data dir
+            RootUtils.exec("mkdir -p '$cookieDir'")
             RootUtils.exec(
                 "cp '${tmp.absolutePath}' '$dbPath' && " +
                 "chmod 600 '$dbPath' && " +
-                "chown $owner '$dbPath' && " +
-                "rm -f '${dbPath}-shm' '${dbPath}-wal'"
+                "chown $appUid:$appUid '$dbPath'"
             )
             tmp.delete()
 
-            // Update prefs.xml so app recognizes the new account
-            if (userId > 0) {
-                RootUtils.exec("""
-                    sed -i 's|<long name="userid_long" value="[0-9]*"|<long name="userid_long" value="$userId"|g' '$prefsPath'
-                    sed -i 's|<string name="username">[^<]*</string>|<string name="username">$username</string>|g' '$prefsPath'
-                    sed -i 's|<string name="displayName">[^<]*</string>|<string name="displayName">$displayName</string>|g' '$prefsPath'
-                """.trimIndent())
-            }
-
+            // Launch app — WebView will see the cookie on first load and auto-login
             Thread.sleep(400)
             RootUtils.exec("monkey -p $pkg -c android.intent.category.LAUNCHER 1")
             true
