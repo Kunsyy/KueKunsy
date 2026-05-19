@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">RbxTool</string>
+    <string name="grab">Grab</string>
+    <string name="inject">Inject</string>
+    <string name="accounts">Akun</string>
+    <string name="settings">Settings</string>
+</resources>
