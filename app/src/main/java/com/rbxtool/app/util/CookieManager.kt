@@ -21,15 +21,21 @@ class CookieManager(private val context: Context) {
         } catch (e: Exception) { tmp.delete(); null }
     }
 
-    fun injectCookie(cookie: String, pkg: String): Boolean {
+    fun injectCookie(
+        cookie: String,
+        pkg: String,
+        userId: Long = 0L,
+        username: String = "",
+        displayName: String = ""
+    ): Boolean {
         val dbPath = "/data/data/$pkg/app_webview/Default/Cookies"
+        val prefsPath = "/data/data/$pkg/shared_prefs/prefs.xml"
         val tmp = File(context.cacheDir, "rbx_inject.db")
 
-        // Stop app + wait for WAL to flush
         RootUtils.exec("am force-stop $pkg")
-        Thread.sleep(800)
+        Thread.sleep(900)
 
-        // Copy DB
+        // Inject WebView cookie DB
         RootUtils.exec("cp '$dbPath' '${tmp.absolutePath}' && chmod 666 '${tmp.absolutePath}'")
         if (!tmp.exists()) return false
 
@@ -37,7 +43,6 @@ class CookieManager(private val context: Context) {
             val db = SQLiteDatabase.openDatabase(tmp.absolutePath, null, SQLiteDatabase.OPEN_READWRITE)
             val now = (System.currentTimeMillis() / 1000L + 11644473600L) * 1_000_000L
 
-            // Get actual columns to handle different Chrome/WebView schema versions
             val schemaCur = db.rawQuery("PRAGMA table_info(cookies)", null)
             val cols = mutableSetOf<String>()
             while (schemaCur.moveToNext()) cols.add(schemaCur.getString(1))
@@ -70,10 +75,7 @@ class CookieManager(private val context: Context) {
             db.insert("cookies", null, cv)
             db.close()
 
-            // Get original owner to preserve permissions
             val owner = RootUtils.exec("stat -c '%U:%G' '$dbPath'").trim()
-
-            // Copy back, fix permissions
             RootUtils.exec(
                 "cp '${tmp.absolutePath}' '$dbPath' && " +
                 "chmod 600 '$dbPath' && " +
@@ -82,7 +84,15 @@ class CookieManager(private val context: Context) {
             )
             tmp.delete()
 
-            // Launch app
+            // Update prefs.xml so app recognizes the new account
+            if (userId > 0) {
+                RootUtils.exec("""
+                    sed -i 's|<long name="userid_long" value="[0-9]*"|<long name="userid_long" value="$userId"|g' '$prefsPath'
+                    sed -i 's|<string name="username">[^<]*</string>|<string name="username">$username</string>|g' '$prefsPath'
+                    sed -i 's|<string name="displayName">[^<]*</string>|<string name="displayName">$displayName</string>|g' '$prefsPath'
+                """.trimIndent())
+            }
+
             Thread.sleep(400)
             RootUtils.exec("monkey -p $pkg -c android.intent.category.LAUNCHER 1")
             true

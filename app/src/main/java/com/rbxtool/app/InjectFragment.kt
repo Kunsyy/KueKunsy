@@ -48,7 +48,6 @@ class InjectFragment : Fragment() {
             return
         }
         if (packages.isEmpty()) { showResult(false, "Tidak ada Roblox ditemukan."); return }
-
         val selectedPkg = packages.getOrNull(b.spinnerPackage.selectedItemPosition) ?: return
 
         b.btnInject.isEnabled = false
@@ -56,18 +55,30 @@ class InjectFragment : Fragment() {
         b.cardResult.visibility = View.GONE
 
         lifecycleScope.launch {
+            // Verify cookie & get user info BEFORE injecting
+            val user = withContext(Dispatchers.IO) { RobloxApi.getUser(cookie) }
+            if (user == null) {
+                showResult(false, "❌ Cookie invalid atau expired.\n\nPastikan cookie masih fresh.")
+                b.btnInject.isEnabled = true
+                b.progress.visibility = View.GONE
+                return@launch
+            }
+
+            // Inject cookie + update SharedPreferences
             val ok = withContext(Dispatchers.IO) {
-                CookieManager(requireContext()).injectCookie(cookie, selectedPkg)
+                CookieManager(requireContext()).injectCookie(
+                    cookie, selectedPkg,
+                    userId = user.id,
+                    username = user.name,
+                    displayName = user.displayName
+                )
             }
-            if (ok) {
-                val user = withContext(Dispatchers.IO) { RobloxApi.getUser(cookie) }
-                if (user != null)
-                    showResult(true, "✅ Berhasil!\n\n👤 @${user.name}\n💰 ${user.robux} Robux\n\nRoblox sudah dibuka otomatis.")
-                else
-                    showResult(true, "✅ Cookie diinject!\nRoblox sudah dibuka.")
-            } else {
+
+            if (ok)
+                showResult(true, "✅ Berhasil!\n\n👤 @${user.name}\n💰 ${user.robux} Robux\n\nRoblox sudah dibuka otomatis.")
+            else
                 showResult(false, "❌ Inject gagal.\n\nPastikan:\n• Roblox pernah login minimal sekali\n• Root aktif\n• Pilih package yang benar")
-            }
+
             b.btnInject.isEnabled = true
             b.progress.visibility = View.GONE
         }
