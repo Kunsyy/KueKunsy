@@ -19,7 +19,13 @@
             android:letterSpacing="0.05"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="6dp" />
+
+        <View
+            android:layout_width="36dp"
+            android:layout_height="3dp"
+            android:background="@color/primary"
+            android:layout_marginBottom="8dp" />
 
         <TextView
             android:text="Paste cookie lalu pilih target Roblox"
@@ -34,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="14dp"
             app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="12dp"
+            app:cardCornerRadius="16dp"
             app:strokeColor="@color/divider"
             app:strokeWidth="1dp">
 
@@ -78,7 +84,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="12dp"
+            app:cardCornerRadius="16dp"
             app:strokeColor="@color/divider"
             app:strokeWidth="1dp">
 
@@ -113,12 +119,12 @@
             android:id="@+id/btnInject"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="INJECT + BUKA ROBLOX"
+            android:text="INJECT COOKIE"
             android:textStyle="bold"
             android:textSize="15sp"
             android:letterSpacing="0.06"
             app:backgroundTint="@color/primary"
-            app:cornerRadius="12dp" />
+            app:cornerRadius="16dp" />
 
         <ProgressBar
             android:id="@+id/progress"
@@ -135,7 +141,7 @@
             android:layout_marginTop="16dp"
             android:visibility="gone"
             app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="12dp"
+            app:cardCornerRadius="16dp"
             app:strokeColor="@color/divider"
             app:strokeWidth="1dp">
 

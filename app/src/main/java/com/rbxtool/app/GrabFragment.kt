@@ -127,11 +127,11 @@ class GrabFragment : Fragment() {
         })
 
         val tgBtn = MaterialButton(ctx)
-        tgBtn.text = "SEND TG"
+        tgBtn.text = "DISCORD"
         tgBtn.textSize = 11f
         tgBtn.letterSpacing = 0.06f
-        tgBtn.setTextColor(Color.parseColor("#F0F0F0"))
-        tgBtn.setBackgroundColor(Color.parseColor("#E87820"))
+        tgBtn.setTextColor(Color.parseColor("#FFFFFF"))
+        tgBtn.setBackgroundColor(Color.parseColor("#5865F2"))
         tgBtn.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         tgBtn.setOnClickListener {
             tgBtn.isEnabled = false
