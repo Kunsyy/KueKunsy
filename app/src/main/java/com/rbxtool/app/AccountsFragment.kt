@@ -17,6 +17,7 @@ import com.rbxtool.app.data.Account
 import com.rbxtool.app.data.AccountStorage
 import com.rbxtool.app.databinding.FragmentAccountsBinding
 import com.rbxtool.app.util.CaptchaSolver
+import com.rbxtool.app.util.SolverType
 import com.rbxtool.app.util.CookieManager
 import com.rbxtool.app.util.RobloxAuth
 import kotlinx.coroutines.Dispatchers

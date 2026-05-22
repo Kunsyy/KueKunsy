@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.rbxtool.app.databinding.FragmentSettingsBinding
 import com.rbxtool.app.util.CaptchaSolver
+import com.rbxtool.app.util.SolverType
 import com.rbxtool.app.util.Constants
 import com.rbxtool.app.util.DiscordHelper
 import com.rbxtool.app.util.RootUtils
