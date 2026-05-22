@@ -7,5 +7,6 @@ data class Account(
     val robux: Int,
     val cookie: String,
     val packageName: String,
-    val savedAt: Long = System.currentTimeMillis()
+    val savedAt: Long = System.currentTimeMillis(),
+    val password: String = ""
 )
