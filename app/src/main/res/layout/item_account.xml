@@ -15,14 +15,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Info row -->
+        <!-- Info row + Delete button -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:paddingEnd="10dp"
             android:paddingTop="14dp"
             android:paddingBottom="12dp">
 
@@ -32,13 +32,29 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tvUsername"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#F0F0F0"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvUsername"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#F0F0F0"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvHasPass"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" 🔑"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvRobux"
@@ -58,13 +74,19 @@
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvHasPass"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🔑"
-                android:textSize="16sp"
-                android:visibility="gone" />
+            <!-- Delete button — top right, always visible -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:text="✕"
+                android:textSize="14sp"
+                android:textColor="#F87171"
+                android:padding="0dp"
+                app:backgroundTint="#2D1010"
+                app:strokeColor="#F87171"
+                app:strokeWidth="1dp"
+                app:cornerRadius="10dp" />
 
         </LinearLayout>
 
@@ -73,7 +95,7 @@
             android:layout_height="1dp"
             android:background="@color/divider" />
 
-        <!-- Button row -->
+        <!-- Button row: INJECT + REFRESH (full width each) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -86,41 +108,28 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnInject"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="38dp"
                 android:layout_weight="1"
                 android:text="INJECT"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
-                android:layout_marginEnd="6dp"
+                android:layout_marginEnd="8dp"
                 app:backgroundTint="@color/primary"
-                app:cornerRadius="8dp" />
+                app:cornerRadius="10dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRefresh"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="38dp"
                 android:layout_weight="1"
                 android:text="REFRESH"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:textColor="#F0F0F0"
-                android:layout_marginEnd="6dp"
                 app:backgroundTint="@color/surface2"
                 app:strokeColor="@color/divider"
                 app:strokeWidth="1dp"
-                app:cornerRadius="8dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDelete"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:text="✕"
-                android:textSize="13sp"
-                android:textColor="#F87171"
-                app:backgroundTint="#2D1010"
-                app:strokeColor="#F87171"
-                app:strokeWidth="1dp"
-                app:cornerRadius="8dp" />
+                app:cornerRadius="10dp" />
 
         </LinearLayout>
 

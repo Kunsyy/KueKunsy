@@ -183,12 +183,42 @@ class AccountsFragment : Fragment() {
 
     fun injectAccount(account: Account, onDone: (Boolean) -> Unit) {
         lifecycleScope.launch {
+            val packages = withContext(Dispatchers.IO) {
+                com.rbxtool.app.util.RootUtils.getRobloxPackages()
+            }
+            if (packages.isEmpty()) {
+                onDone(false)
+                Toast.makeText(requireContext(), "❌ Tidak ada Roblox terdeteksi.", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            if (packages.size == 1) {
+                // Langsung inject jika hanya 1 clone
+                doInject(account, packages[0], onDone)
+            } else {
+                // Pilih clone dulu
+                val labels = packages.map { it.removePrefix("com.roblox.") }.toTypedArray()
+                val defaultIdx = packages.indexOf(account.packageName).coerceAtLeast(0)
+                var selected = defaultIdx
+                androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Inject ke clone mana?")
+                    .setSingleChoiceItems(labels, defaultIdx) { _, which -> selected = which }
+                    .setPositiveButton("Inject") { _, _ ->
+                        doInject(account, packages[selected], onDone)
+                    }
+                    .setNegativeButton("Batal") { _, _ -> onDone(false) }
+                    .show()
+            }
+        }
+    }
+
+    private fun doInject(account: Account, pkg: String, onDone: (Boolean) -> Unit) {
+        lifecycleScope.launch {
             val ok = withContext(Dispatchers.IO) {
-                CookieManager(requireContext()).injectCookie(account.cookie, account.packageName)
+                CookieManager(requireContext()).injectCookie(account.cookie, pkg)
             }
             onDone(ok)
             Toast.makeText(requireContext(),
-                if (ok) "✅ @${account.username} diinject! Buka Roblox manual."
+                if (ok) "✅ @${account.username} → ${pkg.removePrefix("com.roblox.")}! Buka Roblox manual."
                 else "❌ Inject gagal. Cek root & package.",
                 Toast.LENGTH_SHORT).show()
         }
