@@ -1,13 +1,13 @@
 package com.rbxtool.app
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -17,9 +17,10 @@ import com.rbxtool.app.data.Account
 import com.rbxtool.app.data.AccountStorage
 import com.rbxtool.app.databinding.FragmentAccountsBinding
 import com.rbxtool.app.util.CaptchaSolver
-import com.rbxtool.app.util.SolverType
 import com.rbxtool.app.util.CookieManager
+import com.rbxtool.app.util.RobloxApi
 import com.rbxtool.app.util.RobloxAuth
+import com.rbxtool.app.util.SolverType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,19 +45,22 @@ class AccountsFragment : Fragment() {
         )
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         b.recyclerView.adapter = adapter
+
+        b.btnAddAccount.setOnClickListener { showAddAccountDialog() }
+        b.btnRefreshAll.setOnClickListener { refreshAll() }
         b.btnClearAll.setOnClickListener {
-            storage.clear()
-            refreshList()
+            AlertDialog.Builder(requireContext())
+                .setTitle("Hapus Semua?")
+                .setMessage("Semua akun tersimpan akan dihapus.")
+                .setPositiveButton("Hapus Semua") { _, _ -> storage.clear(); refreshList() }
+                .setNegativeButton("Batal", null)
+                .show()
         }
         refreshList()
     }
 
-    override fun onResume() {
-        super.onResume()
-        refreshList()
-    }
+    override fun onResume() { super.onResume(); refreshList() }
 
-    // Fix: hide/show fragment doesn't trigger onResume — use onHiddenChanged instead
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if (!hidden) refreshList()
@@ -65,14 +69,117 @@ class AccountsFragment : Fragment() {
     private fun refreshList() {
         val list = storage.getAll()
         adapter.update(list)
-        if (list.isEmpty()) {
-            b.tvEmpty.visibility = View.VISIBLE
-            b.recyclerView.visibility = View.GONE
-        } else {
-            b.tvEmpty.visibility = View.GONE
-            b.recyclerView.visibility = View.VISIBLE
+        b.tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+        b.recyclerView.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
+    }
+
+    // ── Manual Add Account ────────────────────────────────────────────────────
+
+    private fun showAddAccountDialog() {
+        val ctx = requireContext()
+        val layout = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(60, 20, 60, 0)
+        }
+        val etUser = EditText(ctx).apply {
+            hint = "Username"
+            setTextColor(0xFFF0F0F0.toInt())
+            setHintTextColor(0xFF555555.toInt())
+            inputType = InputType.TYPE_CLASS_TEXT
+            setPadding(0, 16, 0, 16)
+        }
+        val etPass = EditText(ctx).apply {
+            hint = "Password"
+            setTextColor(0xFFF0F0F0.toInt())
+            setHintTextColor(0xFF555555.toInt())
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            setPadding(0, 16, 0, 16)
+        }
+        layout.addView(etUser)
+        layout.addView(etPass)
+
+        AlertDialog.Builder(ctx)
+            .setTitle("Tambah Akun")
+            .setMessage("Login otomatis untuk dapat cookie fresh.")
+            .setView(layout)
+            .setPositiveButton("Tambah") { _, _ ->
+                val user = etUser.text.toString().trim()
+                val pass = etPass.text.toString()
+                if (user.isBlank() || pass.isBlank()) {
+                    Toast.makeText(ctx, "Username & password tidak boleh kosong", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                doAddAccount(user, pass)
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
+    private fun doAddAccount(username: String, password: String) {
+        Toast.makeText(requireContext(), "⏳ Login @$username...", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                RobloxAuth.login(username, password, getSolverConfig())
+            }
+            when {
+                result.cookie != null -> {
+                    val user = withContext(Dispatchers.IO) { RobloxApi.getUser(result.cookie) }
+                    val account = Account(
+                        id = user?.id ?: System.currentTimeMillis(),
+                        username = user?.name ?: username,
+                        displayName = user?.displayName ?: username,
+                        robux = user?.robux ?: 0,
+                        cookie = result.cookie,
+                        packageName = "com.roblox.client",
+                        password = password
+                    )
+                    storage.save(account)
+                    refreshList()
+                    Toast.makeText(requireContext(), "✅ @${account.username} ditambahkan!", Toast.LENGTH_SHORT).show()
+                }
+                result.needsCaptcha -> Toast.makeText(requireContext(),
+                    "⚠️ Butuh captcha solver. Set di Settings.", Toast.LENGTH_LONG).show()
+                else -> Toast.makeText(requireContext(),
+                    "❌ ${result.error}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
+    // ── Refresh All ───────────────────────────────────────────────────────────
+
+    private fun refreshAll() {
+        val accounts = storage.getAll().filter { it.password.isNotEmpty() }
+        if (accounts.isEmpty()) {
+            Toast.makeText(requireContext(),
+                "Belum ada akun dengan password tersimpan.\nTap REFRESH di tiap akun dulu.",
+                Toast.LENGTH_LONG).show()
+            return
+        }
+        b.btnRefreshAll.isEnabled = false
+        b.btnRefreshAll.text = "Refreshing..."
+        lifecycleScope.launch {
+            var success = 0
+            accounts.forEachIndexed { i, acc ->
+                withContext(Dispatchers.Main) {
+                    b.btnRefreshAll.text = "Refreshing ${i + 1}/${accounts.size}..."
+                }
+                val result = withContext(Dispatchers.IO) {
+                    RobloxAuth.login(acc.username, acc.password, getSolverConfig())
+                }
+                if (result.cookie != null) {
+                    storage.save(acc.copy(cookie = result.cookie))
+                    success++
+                }
+            }
+            refreshList()
+            b.btnRefreshAll.isEnabled = true
+            b.btnRefreshAll.text = "↻  REFRESH SEMUA COOKIE"
+            Toast.makeText(requireContext(),
+                "✅ $success/${accounts.size} akun berhasil diperbarui!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // ── Inject ────────────────────────────────────────────────────────────────
 
     fun injectAccount(account: Account, onDone: (Boolean) -> Unit) {
         lifecycleScope.launch {
@@ -80,11 +187,14 @@ class AccountsFragment : Fragment() {
                 CookieManager(requireContext()).injectCookie(account.cookie, account.packageName)
             }
             onDone(ok)
-            val msg = if (ok) "✅ @${account.username} diinject! Buka Roblox manual."
-                      else "❌ Inject gagal. Cek root & package."
-            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(),
+                if (ok) "✅ @${account.username} diinject! Buka Roblox manual."
+                else "❌ Inject gagal. Cek root & package.",
+                Toast.LENGTH_SHORT).show()
         }
     }
+
+    // ── Refresh Single ────────────────────────────────────────────────────────
 
     private fun refreshAccount(account: Account, onDone: (Boolean) -> Unit) {
         if (account.password.isEmpty()) {
@@ -99,15 +209,6 @@ class AccountsFragment : Fragment() {
         }
     }
 
-    private fun getSolverConfig(): CaptchaSolver.SolverConfig {
-        val prefs = requireContext().getSharedPreferences("rbx_settings", Context.MODE_PRIVATE)
-        val typeName = prefs.getString("captcha_solver_type", SolverType.NONE.name)
-        val key = prefs.getString("captcha_solver_key", "") ?: ""
-        val type = try { SolverType.valueOf(typeName ?: "") }
-                   catch (e: Exception) { SolverType.NONE }
-        return CaptchaSolver.SolverConfig(type, key)
-    }
-
     private fun doRefresh(account: Account, onDone: (Boolean) -> Unit) {
         lifecycleScope.launch {
             val result = withContext(Dispatchers.IO) {
@@ -115,8 +216,7 @@ class AccountsFragment : Fragment() {
             }
             when {
                 result.cookie != null -> {
-                    val updated = account.copy(cookie = result.cookie)
-                    storage.save(updated)
+                    storage.save(account.copy(cookie = result.cookie))
                     refreshList()
                     onDone(true)
                     Toast.makeText(requireContext(),
@@ -125,12 +225,11 @@ class AccountsFragment : Fragment() {
                 result.needsCaptcha -> {
                     onDone(false)
                     Toast.makeText(requireContext(),
-                        "⚠️ Butuh captcha solver. Tambah API key di Settings.", Toast.LENGTH_LONG).show()
+                        "⚠️ Butuh captcha solver. Set di Settings.", Toast.LENGTH_LONG).show()
                 }
                 else -> {
                     onDone(false)
-                    Toast.makeText(requireContext(),
-                        "❌ ${result.error}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "❌ ${result.error}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -146,23 +245,33 @@ class AccountsFragment : Fragment() {
         }
         AlertDialog.Builder(requireContext())
             .setTitle("Masukkan Password")
-            .setMessage("Password disimpan lokal. Dipakai untuk refresh cookie otomatis.")
+            .setMessage("Disimpan lokal untuk refresh cookie otomatis.")
             .setView(et)
             .setPositiveButton("Simpan & Refresh") { _, _ -> onPassword(et.text.toString()) }
             .setNegativeButton("Batal") { _, _ -> onPassword("") }
             .show()
     }
 
+    // ── Delete ────────────────────────────────────────────────────────────────
+
     private fun deleteAccount(account: Account) {
         AlertDialog.Builder(requireContext())
             .setTitle("Hapus Akun?")
             .setMessage("@${account.username} akan dihapus dari daftar.")
-            .setPositiveButton("Hapus") { _, _ ->
-                storage.delete(account.id)
-                refreshList()
-            }
+            .setPositiveButton("Hapus") { _, _ -> storage.delete(account.id); refreshList() }
             .setNegativeButton("Batal", null)
             .show()
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private fun getSolverConfig(): CaptchaSolver.SolverConfig {
+        val prefs = requireContext().getSharedPreferences("rbx_settings", Context.MODE_PRIVATE)
+        val typeName = prefs.getString("captcha_solver_type", SolverType.NONE.name)
+        val key = prefs.getString("captcha_solver_key", "") ?: ""
+        val type = try { SolverType.valueOf(typeName ?: "") }
+                   catch (e: Exception) { SolverType.NONE }
+        return CaptchaSolver.SolverConfig(type, key)
     }
 
     override fun onDestroyView() { super.onDestroyView(); _b = null }
