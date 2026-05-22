@@ -100,10 +100,10 @@ class AccountsFragment : Fragment() {
 
     private fun getSolverConfig(): CaptchaSolver.SolverConfig {
         val prefs = requireContext().getSharedPreferences("rbx_settings", Context.MODE_PRIVATE)
-        val typeName = prefs.getString("captcha_solver_type", CaptchaSolver.SolverType.NONE.name)
+        val typeName = prefs.getString("captcha_solver_type", SolverType.NONE.name)
         val key = prefs.getString("captcha_solver_key", "") ?: ""
-        val type = try { CaptchaSolver.SolverType.valueOf(typeName ?: "") }
-                   catch (e: Exception) { CaptchaSolver.SolverType.NONE }
+        val type = try { SolverType.valueOf(typeName ?: "") }
+                   catch (e: Exception) { SolverType.NONE }
         return CaptchaSolver.SolverConfig(type, key)
     }
 

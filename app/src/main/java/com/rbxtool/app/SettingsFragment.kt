@@ -40,7 +40,7 @@ class SettingsFragment : Fragment() {
         b.spinnerSolver.adapter = adapter
 
         // Restore saved solver selection
-        val savedSolverName = prefs.getString("captcha_solver_type", CaptchaSolver.SolverType.NONE.name)
+        val savedSolverName = prefs.getString("captcha_solver_type", SolverType.NONE.name)
         val savedIdx = solverTypes.indexOfFirst { it.name == savedSolverName }.coerceAtLeast(0)
         b.spinnerSolver.setSelection(savedIdx)
 
@@ -64,7 +64,7 @@ class SettingsFragment : Fragment() {
                 .putString("captcha_solver_type", selectedType.name)
                 .putString("captcha_solver_key", key)
                 .apply()
-            val msg = if (selectedType == CaptchaSolver.SolverType.NONE || key.isEmpty())
+            val msg = if (selectedType == SolverType.NONE || key.isEmpty())
                 "Solver dikosongkan"
             else
                 "✅ ${CaptchaSolver.displayName(selectedType)} disimpan!"

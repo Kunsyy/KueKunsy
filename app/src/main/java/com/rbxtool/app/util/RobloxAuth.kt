@@ -18,14 +18,14 @@ object RobloxAuth {
     fun login(
         username: String,
         password: String,
-        solverConfig: CaptchaSolver.SolverConfig = CaptchaSolver.SolverConfig(CaptchaSolver.SolverType.NONE, "")
+        solverConfig: CaptchaSolver.SolverConfig = CaptchaSolver.SolverConfig(SolverType.NONE, "")
     ): LoginResult {
         return try {
             val csrf = getCsrfToken() ?: return LoginResult(error = "Gagal ambil CSRF token")
             val result = attemptLogin(username, password, csrf)
 
             // Jika butuh captcha dan solver tersedia → solve lalu retry
-            if (result.needsCaptcha && solverConfig.type != CaptchaSolver.SolverType.NONE) {
+            if (result.needsCaptcha && solverConfig.type != SolverType.NONE) {
                 val token = CaptchaSolver.solve(solverConfig)
                     ?: return LoginResult(error = "Captcha solver gagal. Cek API key & saldo.")
                 attemptLogin(username, password, csrf, captchaToken = token)
@@ -63,7 +63,7 @@ object RobloxAuth {
             put("cvalue", username)
             put("password", password)
         }.toString()
-        OutputStreamWriter(conn.outputStream).use { it.write(body.toByteArray()) }
+        OutputStreamWriter(conn.outputStream).use { it.write(body) }
 
         return when (val code = conn.responseCode) {
             200 -> {
@@ -95,7 +95,7 @@ object RobloxAuth {
             conn.doOutput = true
             conn.setRequestProperty("Content-Type", "application/json")
             conn.connectTimeout = 10000
-            OutputStreamWriter(conn.outputStream).use { it.write("{}".toByteArray()) }
+            OutputStreamWriter(conn.outputStream).use { it.write("{}") }
             conn.responseCode
             conn.headerFields["x-csrf-token"]?.firstOrNull()
         } catch (e: Exception) { null }
