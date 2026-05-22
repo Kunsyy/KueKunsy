@@ -75,7 +75,7 @@ class InjectFragment : Fragment() {
             }
 
             if (ok)
-                showResult(true, "✅ Cookie diinject!\n\n👤 @${user.name}\n💰 ${user.robux} Robux\n\n⚡ Di Roblox yang terbuka:\nTap  \"Sign in to another account\"\n→ Auto login tanpa password")
+                showResult(true, "✅ Cookie diinject!\n\n👤 @${user.name}\n💰 ${user.robux} Robux\n\n⚡ Roblox sudah dibuka otomatis.\nTunggu loading → akun langsung masuk!")
             else
                 showResult(false, "❌ Inject gagal.\n\nPastikan:\n• Roblox pernah login minimal sekali\n• Root aktif\n• Pilih package yang benar")
 
