@@ -1,5 +1,8 @@
 package com.rbxtool.app
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -109,6 +112,23 @@ class GrabFragment : Fragment() {
         }
 
         btnRow.addView(MaterialButton(ctx).apply {
+            text = "COPY"
+            textSize = 11f
+            letterSpacing = 0.06f
+            setTextColor(Color.parseColor("#F0F0F0"))
+            setBackgroundColor(Color.parseColor("#2A2A2A"))
+            setOnClickListener {
+                val cm = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                cm.setPrimaryClip(ClipData.newPlainText("cookie", cookie))
+                text = "✓ COPIED"
+                postDelayed({ text = "COPY" }, 2000)
+            }
+            val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            lp.marginEnd = 8
+            layoutParams = lp
+        })
+
+        btnRow.addView(MaterialButton(ctx).apply {
             text = "SAVE"
             textSize = 11f
             letterSpacing = 0.06f
@@ -122,7 +142,7 @@ class GrabFragment : Fragment() {
                 }
             }
             val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            lp.marginEnd = 10
+            lp.marginEnd = 8
             layoutParams = lp
         })
 

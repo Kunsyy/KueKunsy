@@ -8,7 +8,7 @@ import com.rbxtool.app.databinding.ItemAccountBinding
 
 class AccountAdapter(
     private var items: List<Account>,
-    private val onInject: (Account) -> Unit,
+    private val onInject: (Account, (Boolean) -> Unit) -> Unit,
     private val onDelete: (Account) -> Unit
 ) : RecyclerView.Adapter<AccountAdapter.VH>() {
 
@@ -24,7 +24,18 @@ class AccountAdapter(
         h.b.tvUsername.text = "@${acc.username}"
         h.b.tvRobux.text = "💰 ${acc.robux} Robux"
         h.b.tvSource.text = acc.packageName.removePrefix("com.roblox.")
-        h.b.btnInject.setOnClickListener { onInject(acc) }
+
+        h.b.btnInject.setOnClickListener {
+            h.b.btnInject.isEnabled = false
+            h.b.btnInject.text = "..."
+            onInject(acc) { ok ->
+                h.b.btnInject.isEnabled = true
+                h.b.btnInject.text = if (ok) "✓ OK" else "INJECT"
+                // Reset teks setelah 2 detik
+                h.b.btnInject.postDelayed({ h.b.btnInject.text = "INJECT" }, 2000)
+            }
+        }
+
         h.b.btnDelete.setOnClickListener { onDelete(acc) }
     }
 

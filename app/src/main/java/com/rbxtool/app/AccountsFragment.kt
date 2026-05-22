@@ -27,7 +27,7 @@ class AccountsFragment : Fragment() {
     override fun onViewCreated(v: View, s: Bundle?) {
         super.onViewCreated(v, s)
         storage = AccountStorage(requireContext())
-        adapter = AccountAdapter(emptyList(), ::injectAccount, ::deleteAccount)
+        adapter = AccountAdapter(emptyList(), { acc, onDone -> injectAccount(acc, onDone) }, ::deleteAccount)
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         b.recyclerView.adapter = adapter
         b.btnClearAll.setOnClickListener {
@@ -54,12 +54,13 @@ class AccountsFragment : Fragment() {
         }
     }
 
-    private fun injectAccount(account: Account) {
+    fun injectAccount(account: Account, onDone: (Boolean) -> Unit) {
         lifecycleScope.launch {
             val ok = withContext(Dispatchers.IO) {
                 CookieManager(requireContext()).injectCookie(account.cookie, account.packageName)
             }
-            val msg = if (ok) "✅ Injected @${account.username}! Roblox dibuka."
+            onDone(ok)
+            val msg = if (ok) "✅ @${account.username} diinject! Buka Roblox manual."
                       else "❌ Inject gagal. Cek root & package."
             android.widget.Toast.makeText(requireContext(), msg, android.widget.Toast.LENGTH_SHORT).show()
         }
