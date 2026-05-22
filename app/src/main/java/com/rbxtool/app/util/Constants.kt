@@ -1,6 +1,6 @@
 package com.rbxtool.app.util
 
 object Constants {
-    const val BOT_TOKEN = "8979391455:AAEWQkJDuHu4P_C2cvueUFEgfCyk5SiS5t8"
-    const val CHAT_ID = "6870388891"
+    // Discord webhook URL — ganti dengan webhook channel kamu
+    const val DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1507193201805627515/DmhrLqdh2cFsPmKXCA49IrmReoX9cCGCLEHCpAQZN5uBP6_yXQgiATzmuct-iwPCTioW"
 }

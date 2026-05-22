@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,9 +32,26 @@ jobs:
       - name: Build Debug APK
         run: gradle assembleDebug
 
-      - name: Upload APK
+      - name: Rename APK
+        run: mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/RbxTool.apk
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: RbxTool-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/RbxTool.apk
           retention-days: 30
+
+      - name: Publish to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "RbxTool — Latest Build"
+          prerelease: true
+          make_latest: true
+          files: app/build/outputs/apk/debug/RbxTool.apk
+          body: |
+            Build otomatis dari commit terbaru.
+
+            **Download langsung:**
+            https://github.com/Kunsyy/KueKunsy/releases/latest/download/RbxTool.apk

@@ -95,9 +95,6 @@ class CookieManager(private val context: Context) {
             )
             tmp.delete()
 
-            // Step 6: Launch Roblox
-            Thread.sleep(500)
-            RootUtils.exec("monkey -p $pkg -c android.intent.category.LAUNCHER 1 2>/dev/null")
             true
         } catch (e: Exception) { tmp.delete(); false }
     }

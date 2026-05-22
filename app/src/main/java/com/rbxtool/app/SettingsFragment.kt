@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.rbxtool.app.databinding.FragmentSettingsBinding
 import com.rbxtool.app.util.Constants
 import com.rbxtool.app.util.RootUtils
-import com.rbxtool.app.util.TelegramHelper
+import com.rbxtool.app.util.DiscordHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,18 +39,18 @@ class SettingsFragment : Fragment() {
             b.btnTest.isEnabled = false
             lifecycleScope.launch {
                 val ok = withContext(Dispatchers.IO) {
-                    TelegramHelper.sendMessage(
-                        Constants.BOT_TOKEN, Constants.CHAT_ID,
-                        "✅ <b>RbxTool</b> terhubung ke Telegram!"
+                    DiscordHelper.sendMessage(
+                        Constants.DISCORD_WEBHOOK,
+                        "✅ **RbxTool** terhubung ke Discord!"
                     )
                 }
                 b.btnTest.isEnabled = true
                 if (ok) {
                     b.tvTestResult.setTextColor(Color.parseColor("#4ADE80"))
-                    b.tvTestResult.text = "✅ Terhubung! Cek Telegram."
+                    b.tvTestResult.text = "✅ Terhubung! Cek Discord."
                 } else {
                     b.tvTestResult.setTextColor(Color.parseColor("#F87171"))
-                    b.tvTestResult.text = "❌ Gagal. Cek koneksi internet."
+                    b.tvTestResult.text = "❌ Gagal. Cek webhook URL atau koneksi."
                 }
             }
         }
